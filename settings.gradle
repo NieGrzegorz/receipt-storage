@@ -1,0 +1,2 @@
+rootProject.name='Paragon'
+include ':app'
