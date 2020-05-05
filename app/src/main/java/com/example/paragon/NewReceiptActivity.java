@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
-public class NewParagonGroupActivity extends AppCompatActivity {
+public class NewReceiptActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,4 @@ public class NewParagonGroupActivity extends AppCompatActivity {
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
-
-
 }
