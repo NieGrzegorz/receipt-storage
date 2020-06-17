@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -18,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mainView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<String> dataSet;
 
 
     @Override
@@ -26,19 +26,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dataSet = new ArrayList<>();
-        dataSet.add("One");
-        dataSet.add("Two");
-        dataSet.add("Three");
-
         mainView = (RecyclerView)findViewById(R.id.mainList);
         mainView.setHasFixedSize(true);
 
         layoutManager = new LinearLayoutManager(this);
         mainView.setLayoutManager(layoutManager);
 
-        mAdapter = new MainListAdapter(this, dataSet);
-        mainView.setAdapter(mAdapter);
+        getReceipts();
     }
 
     @Override
@@ -46,14 +40,39 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         String res = data.getStringExtra("Result");
-        dataSet.add(res);
         mAdapter.notifyDataSetChanged();
+        getReceipts();
     }
 
     public void onAddBtnClicked(View view) {
         Intent intent = new Intent(this, NewReceiptActivity.class);
         int reqCode = 1;
         startActivityForResult(intent, reqCode);
+    }
+
+    private void getReceipts() {
+        class GetReceipts extends AsyncTask<Void, Void, List<Receipt>> {
+
+            @Override
+            protected List<Receipt> doInBackground(Void... voids) {
+                List<Receipt> receiptList = DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .receiptDao()
+                        .getAll();
+                return receiptList;
+            }
+
+            @Override
+            protected void onPostExecute(List<Receipt> receipts) {
+                super.onPostExecute(receipts);
+                mAdapter = new MainListAdapter(MainActivity.this, receipts);
+                mainView.setAdapter(mAdapter);
+            }
+        }
+
+        GetReceipts gt = new GetReceipts();
+        gt.execute();
     }
 
 
